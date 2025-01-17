@@ -1,0 +1,17 @@
+{
+    "exp_name": "exps/zero_shot-debug",
+    "method": "zero_shot",
+    "domain": "target",
+    "gpus": [
+        "0"
+    ],
+    "model_name": "llama3.1-8b",
+    "bs": 1,
+    "load_in_8bit": false,
+    "use_cache": true,
+    "shot_num": 0,
+    "test_num": 500,
+    "use_instruction": false,
+    "datasets": "arc_challenge",
+    "model_path": "/mnt/tangxinyu/huggingface/models/meta-llama/Meta-Llama-3.1-8B/"
+}
