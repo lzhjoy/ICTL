@@ -1,0 +1,28 @@
+name: ictl
+channels:
+  - pytorch
+  - nvidia
+  - huggingface
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy=1.21
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - jupyter
+  - pytorch
+  - torchvision
+  - torchaudio
+  - cudatoolkit=11.8
+  - pip
+  - pip:
+    - tensorflow==2.7.0
+    - keras
+    - accelerate
+    - transformers
+    - datasets
+    - sentencepiece
+    - protobuf
+    - bitsandbytes  # 用于8-bit量化

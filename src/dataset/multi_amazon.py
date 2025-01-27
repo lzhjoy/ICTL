@@ -31,7 +31,7 @@ class Multilingual_Amazon_Reviews_Corpus(BaseTask):
         os.makedirs(amaz_save_dir, exist_ok=True)
 
         languages = ['de', 'en', 'es', 'fr', 'ja', 'zh']
-
+        
         amaz_t={
             'de':'Rezension: {s} Bewertung:',
             'ja':'レビュー: {s} 評価:',
@@ -79,7 +79,7 @@ class Multilingual_Amazon_Reviews_Corpus(BaseTask):
             for d in train_marc:
                 data = {}
                 data['language'] = language
-
+                # 这个数据集是一个评分数据集，评分范围是0-4，2是neutral
                 if d['label'] == 2:
                     continue
                 elif d['label'] in [0, 1]:

@@ -11,7 +11,7 @@ sys.path.insert(0, ICTL_ROOT_PATH)
 
 from src.dataset.basetask import BaseTask
 from src.utils.utils import write_jsonl
-
+# 继承自BaseTask
 class AGNews(BaseTask):
     
     def __init__(self, *args, **kwargs):
@@ -49,7 +49,7 @@ class AGNews(BaseTask):
         os.makedirs(source_cross_task_save_dir, exist_ok=True)
         agnews_dataset_name = 'ag_news'
         agnews_dataset= load_dataset(agnews_dataset_name)['train']
-        id = 1
+        id = 1 # 数据id
         agnews_label2text={
             0: 'world',
             1: 'sports',
@@ -57,7 +57,7 @@ class AGNews(BaseTask):
             3: 'technology'
         }
 
-        agnews_data = []
+        agnews_data = [] # 数据列表，每一条数据是一个字典
 
         for d in tqdm(agnews_dataset, desc="agnews"):
             data = {}
@@ -67,5 +67,5 @@ class AGNews(BaseTask):
             data['label'] = agnews_label2text[d['label']]
             agnews_data.append(data)
 
-        agnews_data_sampled = random.sample(agnews_data, k)
+        agnews_data_sampled = random.sample(agnews_data, k) # 随机采样k条数据
         write_jsonl(agnews_data_sampled, os.path.join(source_cross_task_save_dir, 'agnews.jsonl'))
