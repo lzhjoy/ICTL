@@ -31,8 +31,13 @@ class Evaluator(nn.Module):
         
         # TODO: 不用cache，few-shot设置下，来一个query直接检索示例
         
+        # 前向传播得到label
         if use_logits:
-        
+            
+            # 这种映射在处理分类任务时很重要，因为：
+            # 模型输出的是token ID  
+            # 评估需要数字标签
+            # 最终展示需要可读的文本答案
             # prepare label dict
             label_map = {}
             label2id = {}
@@ -60,6 +65,7 @@ class Evaluator(nn.Module):
                     else:
                         context = ques_str
                 else:
+                    # TODO：需要完善一下使用demonstration的逻辑
                     ques_embed = self.sentence_model.encode([ques_str], convert_to_tensor=True)
                     demon_embed = [demon['embed'] for demon in self.demon_info]
                     if self.config['use_instruction']:
@@ -79,17 +85,20 @@ class Evaluator(nn.Module):
                     # 对输入进行tokenization
                     input_tok = tokenizer(cur_inputs, return_tensors="pt", padding=True)
                     input_ids = input_tok['input_ids'].to(self.accelerator.device)
+                    # 获取注意力掩码，用于处理输入序列中的填充标记
                     attn_mask = input_tok['attention_mask'].to(self.accelerator.device)
-                    # get index for prediction logits, need to be applied before concatenating demon_attn_mask with attn_mask
+                    # 获取注意力掩码中最后一个1的位置，用于处理输入序列中的填充标记
                     pred_loc = utils.last_one_indices(attn_mask).to(self.accelerator.device)
-                    # set global variables
+                    # 设置全局变量
                     gv.ATTN_MASK_START = torch.zeros_like(pred_loc)
                     gv.ATTN_MASK_END = pred_loc
+                    # 前向传播
                     output = model(input_ids=input_ids, attention_mask=attn_mask)
                     
+                    # (batch_size, seq_len, vocab_size)
                     logits = output.logits
 
-                    # get prediction logits
+                    # get prediction logits，the last token is the prediction
                     pred_logits = logits[torch.arange(logits.size(0)), pred_loc]
                     # get prediction labels
                     interest_index = list(label_map.keys())
@@ -102,7 +111,7 @@ class Evaluator(nn.Module):
         else:
             pass
                     
-                    
+        # 进行评估            
         assert len(all_pred_labels) == len(all_labels)
         acc = []
             
@@ -126,6 +135,7 @@ class Evaluator(nn.Module):
         precision = [0] * num_classes
         recall = [0] * num_classes
         f1 = [0] * num_classes
+        # 使用宏观平均，首先计算每个类的precision和recall，最后进行平均化
         for i in range(num_classes):
             precision[i] = TP[i] / (TP[i] + FP[i]) if (TP[i] + FP[i]) > 0 else 0
             recall[i] = TP[i] / (TP[i] + FN[i]) if (TP[i] + FN[i]) > 0 else 0

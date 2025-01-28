@@ -54,7 +54,9 @@ def load_model_tokenizer(config, accelerator, output_hidden_states=True, load_in
             "layer_num": model.config.num_hidden_layers,
             "hidden_size": model.config.hidden_size,
             "name_or_path": model.config._name_or_path,
+            # 注意力输出投影层的 hook 名称列表
             "attn_hook_names": [f'model.layers.{layer}.self_attn.o_proj' for layer in range(model.config.num_hidden_layers)],
+            # 每一层的 hook 名称列表
             "layer_hook_names":[f'model.layers.{layer}' for layer in range(model.config.num_hidden_layers)],
             "prepend_bos":True
         }

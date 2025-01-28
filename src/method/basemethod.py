@@ -26,6 +26,7 @@ class BaseMethod:
     def load_model_tokenizer(self):
         self.model, self.tokenizer, self.model_config, self.MODEL_CONFIG = utils.load_model_tokenizer(self.config, self.accelerator)
     
+    # 示例来自于源任务
     def load_demonstration_list(self, dataset_name):
         demon_path = f"data/{self.config['domain']}/source"
         self.demon_data = utils.read_jsonl(f"{demon_path}/{dataset_name}.jsonl")
@@ -51,17 +52,26 @@ class BaseMethod:
         self.test_evaluator = ev.Evaluator(config=self.config, sentence_model=self.sentence_model, src_ds_class=self.src_ds_class, tar_ds_class=self.tar_ds_class, demon_list=self.demon_data, demon_embed=self.demon_embeddings, dataset=self.test_data, batch_size=self.config['bs'], accelerator=self.accelerator)
         self.result_dict = {'demon': {}, 'dev_result': {'method': []}, 'test_result': {'method': []}, 'time': {'train': [], 'evaluate': []}, 'best_replace_layer': {}}
     
+    # 在这个类里，src_dataset_name 是目标任务，tar_dataset_name 是源任务
     def run(self, src_dataset_name, tar_dataset_name=None):
         self.src_dataset_name = src_dataset_name
+
+        # src_ds_class 和 tar_ds_class 是数据集的类
         self.src_ds_class = ds.datasets[src_dataset_name](task_name=src_dataset_name)
         if self.tar_dataset_name is not None:
             self.tar_dataset_name = tar_dataset_name
             self.tar_ds_class = ds.datasets[tar_dataset_name](task_name=tar_dataset_name)
         else:
             self.tar_ds_class = None
+
+            
+        # 初始化实验路径
         self.init_exp_path(f"{src_dataset_name}_{tar_dataset_name}")
+        # 加载模型和tokenizer
         self.load_model_tokenizer()
+        # 加载测试数据集
         self.load_test_dataset(src_dataset_name)
+        # 如果目源据集存在，则加载源数据集的演示数据
         if self.tar_dataset_name is not None:
             self.load_demonstration_list(tar_dataset_name)
             self.get_embedding()
