@@ -4,6 +4,7 @@ import torch
 import pdb
 import torch.nn as nn
 import torch.nn.functional as F
+import random
 
 ICTL_ROOT_PATH = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -65,9 +66,67 @@ class Evaluator(nn.Module):
                     else:
                         context = ques_str
                 else:
+                    k = self.config['shot_num']
                     # TODO：需要完善一下使用demonstration的逻辑
                     ques_embed = self.sentence_model.encode([ques_str], convert_to_tensor=True)
                     demon_embed = [demon['embed'] for demon in self.demon_info]
+                    if self.config['shot_method'] == 'random':
+                        # 随机选择k个示例
+                        selected_demons = random.sample(self.demon_info, k)
+                        # 构建示例字符串
+                        demonstrations = []
+                        for demon in selected_demons:
+                            demon_str = f"Question: {demon['demon']}\nAnswer: {demon['label']}\n"
+                            demonstrations.append(demon_str)
+                        # 将所有示例连接成一个字符串
+                        demonstration = "".join(demonstrations) 
+                    elif self.config['shot_method'] == 'topk':
+                        # 计算问题与所有示例的余弦相似度
+                        similarities = F.cosine_similarity(
+                            ques_embed, 
+                            torch.stack(demon_embed),
+                            dim=1
+                        )
+                        # 获取相似度最高的k个示例的索引
+                        _, top_k_indices = torch.topk(similarities, k)
+                        # 构建示例字符串
+                        demonstrations = []
+                        for idx in top_k_indices:
+                            demon = self.demon_info[idx]
+                            demon_str = f"Question: {demon['demon']}\nAnswer: {demon['label']}\n"
+                            demonstrations.append(demon_str)
+                        # 将所有示例连接成一个字符串
+                        demonstration = "".join(demonstrations)
+                    elif self.config['shot_method'] == 'dpp':
+                        # 计算质量分数（使用余弦相似度）
+                        # [num_demons,]
+                        quality_scores = F.cosine_similarity(
+                            ques_embed,  # [1, embedding_dim]
+                            torch.stack(demon_embed),  # [num_demons, embedding_dim]
+                            dim=1
+                        )
+                        # 确保质量分数为正值（因为余弦相似度范围是[-1,1]）
+                        quality_scores = (quality_scores + 1) / 2  # 将范围映射到[0,1]
+                        
+                        # 构建核矩阵
+                        # [num_demons, num_demons]
+                        similarity_matrix = torch.matmul(torch.stack(demon_embed), torch.stack(demon_embed).t())
+                        
+                        # 计算核矩阵 L
+                        # [num_demons, num_demons]
+                        L = similarity_matrix * quality_scores.unsqueeze(0) * quality_scores.unsqueeze(1)
+                        
+                        # DPP采样
+                        selected_indices = self.dpp_sample(L, k)
+                        
+                        # 构建示例字符串
+                        demonstrations = []
+                        for idx in selected_indices:
+                            demon = self.demon_info[idx]
+                            demon_str = f"Question: {demon['demon']}\nAnswer: {demon['label']}\n"
+                            demonstrations.append(demon_str)
+                        demonstration = "".join(demonstrations)
+                    
                     if self.config['use_instruction']:
                         context = f"Definition: {tar_instruction}\n{demonstration}\nDefinition: {src_instruction}\n{ques_str}"
                     else:
@@ -145,3 +204,55 @@ class Evaluator(nn.Module):
             
             
         return {'acc': acc, 'macro_f1': macro_f1}
+
+    def dpp_sample(self, L, k):
+        """
+        使用DPP进行采样
+        L: 核矩阵
+        k: 需要选择的示例数量
+        """
+        N = L.shape[0]
+        
+        # 特征分解
+        eigenvalues, eigenvectors = torch.linalg.eigh(L)
+        
+        # 计算每个特征向量被选中的概率
+        probs = eigenvalues / (eigenvalues + 1)
+        
+        # 第一阶段：确定要选择多少个特征向量
+        selected_eigenvectors = []
+        for i in range(N-1, -1, -1):
+            if len(selected_eigenvectors) < k and torch.rand(1) < probs[i]:
+                selected_eigenvectors.append(eigenvectors[:, i])
+        
+        # 第二阶段：从选中的特征向量确定具体的样本
+        selected_indices = []
+        remaining = list(range(N))
+        
+        while len(selected_indices) < k and remaining:
+            # 计算条件概率
+            probs = []
+            for i in remaining:
+                if len(selected_indices) == 0:
+                    # 对于第一个选择，直接使用对角线元素
+                    prob = L[i, i]
+                else:
+                    # 计算条件概率
+                    prev_selected = torch.tensor(selected_indices)
+                    sub_L = L[prev_selected][:, prev_selected]
+                    v = L[i, prev_selected]
+                    prob = L[i, i] - torch.dot(v, torch.linalg.solve(sub_L, v))
+                probs.append(max(0, prob.item()))
+            
+            # 归一化概率
+            probs = torch.tensor(probs)
+            if probs.sum() == 0:
+                break
+            probs = probs / probs.sum()
+            
+            # 采样下一个索引
+            idx = torch.multinomial(probs, 1).item()
+            selected_indices.append(remaining[idx])
+            remaining.pop(idx)
+        
+        return selected_indices
