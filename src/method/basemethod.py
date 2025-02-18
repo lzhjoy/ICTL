@@ -46,6 +46,7 @@ class BaseMethod:
             self.test_data = utils.read_jsonl(f"{test_path}/{dataset_name}.jsonl")
             self.test_data = self.test_data[:self.config['test_num']]
         elif self.config['domain'] == 'cross_lingual_data':
+            # TODO: 需要完善
             pass
     
     def get_evaluator(self):

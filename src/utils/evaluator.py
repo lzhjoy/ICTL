@@ -67,7 +67,6 @@ class Evaluator(nn.Module):
                         context = ques_str
                 else:
                     k = self.config['shot_num']
-                    # TODO：需要完善一下使用demonstration的逻辑
                     ques_embed = self.sentence_model.encode([ques_str], convert_to_tensor=True)
                     demon_embed = [demon['embed'] for demon in self.demon_info]
                     if self.config['shot_method'] == 'random':
