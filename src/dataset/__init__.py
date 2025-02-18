@@ -15,7 +15,7 @@ from src.dataset.agnews import AGNews
 from src.dataset.arc_challenge import ARC_CHALLENGE
 from src.dataset.arc_easy import ARC_EASY
 from src.dataset.boolq import BOOLQ
-from src.dataset.commense_qa import Commonsenseqa
+from src.dataset.commense_qa import Commensenseqa   
 from src.dataset.financial_phrasebank import FINANCIAL_PHRASEBANK
 from src.dataset.medmcqa import MEDMCQA
 from src.dataset.mnli import MNLI
@@ -32,7 +32,7 @@ datasets = {
     "arc_challenge": ARC_CHALLENGE,
     "arc_easy": ARC_EASY,
     "boolq": BOOLQ,
-    "commonsenseqa": Commonsenseqa,
+    "commensense_qa": Commensenseqa,
     "financial_phrasebank": FINANCIAL_PHRASEBANK,
     "medmcqa": MEDMCQA,
     "mnli": MNLI,

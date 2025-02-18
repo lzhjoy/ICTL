@@ -8,9 +8,10 @@ sys.path.insert(0, ICTL_ROOT_PATH)
 
 from src.method.basemethod import BaseMethod
 from src.method.zero_shot import ZeroShot
-
+from src.method.few_shot import FewShot
 methods = {
     "zero_shot": ZeroShot,
+    "few_shot": FewShot,
 }
 
 method_dict = {}

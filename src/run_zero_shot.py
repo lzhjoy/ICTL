@@ -36,4 +36,4 @@ if __name__ == "__main__":
     device = accelerator.device
     my_method = method.get_method(method_name=config['method'], config=config, accelerator=accelerator)
     
-    my_method.run(dataset_name=datasets)
+    my_method.run(src_dataset_name=datasets)

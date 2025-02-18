@@ -54,7 +54,10 @@ class Evaluator(nn.Module):
             
             if self.config['use_instruction']:
                 src_instruction = self.src_ds_class.get_dmonstration_template()['instruction']
-                tar_instruction = self.tar_ds_class.get_dmonstration_template()['instruction']
+                if self.tar_ds_class:
+                    tar_instruction = self.tar_ds_class.get_dmonstration_template()['instruction']
+                else:
+                    tar_instruction = ""
             
             all_pred_labels = []
             all_inputs, all_labels = [], []

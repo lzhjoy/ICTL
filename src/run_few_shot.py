@@ -18,7 +18,8 @@ from src.utils import utils
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', type=str, default='configs/config_few_shot.py', help='path to config file')
-    parser.add_argument('--datasets', type=str, help="string of datasets", default="financial_phrasebank")
+    parser.add_argument('--src_datasets', type=str, help="string of src_datasets", default="financial_phrasebank")
+    parser.add_argument('--tar_datasets', type=str, help="string of tar_datasets", default="agnews")
     return parser.parse_args()
 
 if __name__ == "__main__":
@@ -27,8 +28,10 @@ if __name__ == "__main__":
         
     # load config
     config = utils.load_config(args.config_path)
-    datasets = args.datasets
-    config['datasets'] = datasets
+    src_datasets = args.src_datasets
+    tar_datasets = args.tar_datasets
+    config['src_datasets'] = src_datasets
+    config['tar_datasets'] = tar_datasets
     
     model_path = utils.transformmodel_name2model_path(config['model_name'])
     config['model_path'] = model_path
@@ -36,4 +39,4 @@ if __name__ == "__main__":
     device = accelerator.device
     my_method = method.get_method(method_name=config['method'], config=config, accelerator=accelerator)
     
-    my_method.run(dataset_name=datasets)
+    my_method.run(src_dataset_name=src_datasets, tar_dataset_name=tar_datasets)

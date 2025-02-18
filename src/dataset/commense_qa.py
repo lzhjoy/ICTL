@@ -12,7 +12,7 @@ sys.path.insert(0, ICTL_ROOT_PATH)
 from src.dataset.basetask import BaseTask
 from src.utils.utils import write_jsonl
 
-class Commonsenseqa(BaseTask):
+class Commensenseqa(BaseTask):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
