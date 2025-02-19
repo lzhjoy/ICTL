@@ -54,7 +54,7 @@ class Evaluator(nn.Module):
             
             if self.config['use_instruction']:
                 src_instruction = self.src_ds_class.get_dmonstration_template()['instruction']
-                if self.tar_ds_class:
+                if self.tar_ds_class != None:
                     tar_instruction = self.tar_ds_class.get_dmonstration_template()['instruction']
                 else:
                     tar_instruction = ""
@@ -86,11 +86,19 @@ class Evaluator(nn.Module):
                         # 计算问题与所有示例的余弦相似度
                         similarities = F.cosine_similarity(
                             ques_embed, 
-                            torch.stack(demon_embed),
+                            torch.stack(demon_embed).squeeze(1),
                             dim=1
                         )
+                        # print(torch.tensor(demon_embed).shape)
+                        # print(torch.stack(demon_embed).squeeze(1).shape)
+                        # print(ques_embed.shape)
+                        # print(similarities.shape)
+
                         # 获取相似度最高的k个示例的索引
                         _, top_k_indices = torch.topk(similarities, k)
+                        # print(f"top_k_indices: {top_k_indices}")
+                        # print(type(top_k_indices))
+                        # print(top_k_indices.shape)
                         # 构建示例字符串
                         demonstrations = []
                         for idx in top_k_indices:
@@ -104,7 +112,7 @@ class Evaluator(nn.Module):
                         # [num_demons,]
                         quality_scores = F.cosine_similarity(
                             ques_embed,  # [1, embedding_dim]
-                            torch.stack(demon_embed),  # [num_demons, embedding_dim]
+                            torch.stack(demon_embed).squeeze(1),  # [num_demons, embedding_dim]
                             dim=1
                         )
                         # 确保质量分数为正值（因为余弦相似度范围是[-1,1]）
