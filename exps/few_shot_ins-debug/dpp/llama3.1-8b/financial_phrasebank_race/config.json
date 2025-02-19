@@ -1,0 +1,19 @@
+{
+    "method": "few_shot",
+    "shot_method": "dpp",
+    "domain": "cross_task_data",
+    "gpus": [
+        "0"
+    ],
+    "model_name": "llama3.1-8b",
+    "exp_name": "exps/few_shot_ins-debug/dpp",
+    "bs": 1,
+    "load_in_8bit": false,
+    "use_cache": false,
+    "shot_num": 4,
+    "test_num": 500,
+    "use_instruction": true,
+    "src_datasets": "financial_phrasebank",
+    "tar_datasets": "race",
+    "model_path": "/mnt/tangxinyu/huggingface/models/meta-llama/Meta-Llama-3.1-8B/"
+}

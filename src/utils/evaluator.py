@@ -61,7 +61,7 @@ class Evaluator(nn.Module):
             
             all_pred_labels = []
             all_inputs, all_labels = [], []
-            for data in self.dataset:
+            for data in tqdm(self.dataset, desc="generate inputs and labels"):
                 ques_str, _, label = self.src_ds_class.apply_template(data)
                 if not use_demonstration:
                     if self.config['use_instruction']:
@@ -83,10 +83,11 @@ class Evaluator(nn.Module):
                         # 将所有示例连接成一个字符串
                         demonstration = "".join(demonstrations) 
                     elif self.config['shot_method'] == 'topk':
+                        demon_embed = torch.stack(demon_embed).squeeze(1)
                         # 计算问题与所有示例的余弦相似度
                         similarities = F.cosine_similarity(
                             ques_embed, 
-                            torch.stack(demon_embed).squeeze(1),
+                            demon_embed,
                             dim=1
                         )
                         # print(torch.tensor(demon_embed).shape)
@@ -110,9 +111,10 @@ class Evaluator(nn.Module):
                     elif self.config['shot_method'] == 'dpp':
                         # 计算质量分数（使用余弦相似度）
                         # [num_demons,]
+                        demon_embed = torch.stack(demon_embed).squeeze(1)
                         quality_scores = F.cosine_similarity(
                             ques_embed,  # [1, embedding_dim]
-                            torch.stack(demon_embed).squeeze(1),  # [num_demons, embedding_dim]
+                            demon_embed,  # [num_demons, embedding_dim]
                             dim=1
                         )
                         # 确保质量分数为正值（因为余弦相似度范围是[-1,1]）
@@ -120,11 +122,12 @@ class Evaluator(nn.Module):
                         
                         # 构建核矩阵
                         # [num_demons, num_demons]
-                        similarity_matrix = torch.matmul(torch.stack(demon_embed), torch.stack(demon_embed).t())
+                        similarity_matrix = torch.matmul(demon_embed, demon_embed.t())
                         
                         # 计算核矩阵 L
                         # [num_demons, num_demons]
                         L = similarity_matrix * quality_scores.unsqueeze(0) * quality_scores.unsqueeze(1)
+                        # print(L.shape)
                         
                         # DPP采样
                         selected_indices = self.dpp_sample(L, k)
@@ -215,54 +218,89 @@ class Evaluator(nn.Module):
             
         return {'acc': acc, 'macro_f1': macro_f1}
 
+    # def dpp_sample(self, L, k):
+    #     """
+    #     使用DPP进行采样
+    #     L: 核矩阵
+    #     k: 需要选择的示例数量
+    #     """
+    #     N = L.shape[0]
+    #     # print(L.device)
+        
+    #     # 特征分解
+    #     eigenvalues, eigenvectors = torch.linalg.eigh(L)
+        
+    #     # 计算每个特征向量被选中的概率
+    #     probs = eigenvalues / (eigenvalues + 1)
+        
+    #     # 第一阶段：确定要选择多少个特征向量
+    #     selected_eigenvectors = []
+    #     for i in range(N-1, -1, -1):
+    #         if len(selected_eigenvectors) < k and torch.rand(1).to(L.device) < probs[i]:
+    #             selected_eigenvectors.append(eigenvectors[:, i])
+        
+    #     # 第二阶段：从选中的特征向量确定具体的样本
+    #     selected_indices = []
+    #     remaining = list(range(N))
+        
+    #     while len(selected_indices) < k and remaining:
+    #         # 计算条件概率
+    #         probs = []
+    #         for i in remaining:
+    #             if len(selected_indices) == 0:
+    #                 # 对于第一个选择，直接使用对角线元素
+    #                 prob = L[i, i]
+    #             else:
+    #                 # 计算条件概率
+    #                 prev_selected = torch.tensor(selected_indices)
+    #                 sub_L = L[prev_selected][:, prev_selected]
+    #                 v = L[i, prev_selected]
+    #                 prob = L[i, i] - torch.dot(v, torch.linalg.solve(sub_L, v))
+    #             probs.append(max(0, prob.item()))
+            
+    #         # 归一化概率
+    #         probs = torch.tensor(probs)
+    #         if probs.sum() == 0:
+    #             break
+    #         probs = probs / probs.sum()
+            
+    #         # 采样下一个索引
+    #         idx = torch.multinomial(probs, 1).item()
+    #         selected_indices.append(remaining[idx])
+    #         remaining.pop(idx)
+        
+    #     return selected_indices
+
+    
+
     def dpp_sample(self, L, k):
         """
-        使用DPP进行采样
+        使用贪心算法近似DPP进行采样，同时批量化处理
         L: 核矩阵
         k: 需要选择的示例数量
         """
         N = L.shape[0]
+        device = L.device
         
-        # 特征分解
-        eigenvalues, eigenvectors = torch.linalg.eigh(L)
-        
-        # 计算每个特征向量被选中的概率
-        probs = eigenvalues / (eigenvalues + 1)
-        
-        # 第一阶段：确定要选择多少个特征向量
-        selected_eigenvectors = []
-        for i in range(N-1, -1, -1):
-            if len(selected_eigenvectors) < k and torch.rand(1) < probs[i]:
-                selected_eigenvectors.append(eigenvectors[:, i])
-        
-        # 第二阶段：从选中的特征向量确定具体的样本
         selected_indices = []
-        remaining = list(range(N))
+        remaining = torch.arange(N, device=device)
         
-        while len(selected_indices) < k and remaining:
-            # 计算条件概率
-            probs = []
-            for i in remaining:
-                if len(selected_indices) == 0:
-                    # 对于第一个选择，直接使用对角线元素
-                    prob = L[i, i]
-                else:
-                    # 计算条件概率
-                    prev_selected = torch.tensor(selected_indices)
-                    sub_L = L[prev_selected][:, prev_selected]
-                    v = L[i, prev_selected]
-                    prob = L[i, i] - torch.dot(v, torch.linalg.solve(sub_L, v))
-                probs.append(max(0, prob.item()))
-            
-            # 归一化概率
-            probs = torch.tensor(probs)
-            if probs.sum() == 0:
+        for _ in range(k):
+            if len(remaining) == 0:
                 break
-            probs = probs / probs.sum()
             
-            # 采样下一个索引
-            idx = torch.multinomial(probs, 1).item()
-            selected_indices.append(remaining[idx])
-            remaining.pop(idx)
+            # 批量计算边际增益
+            if len(selected_indices) == 0:
+                gains = torch.diagonal(L)
+            else:
+                prev_selected = torch.tensor(selected_indices, device=device)
+                sub_L = L[prev_selected][:, prev_selected]
+                V = L[remaining][:, prev_selected]
+                gains = torch.diagonal(L)[remaining] - torch.sum(V * torch.linalg.solve(sub_L, V.T).T, dim=1)
+            
+            # 找到最大增益的索引
+            max_gain_idx = torch.argmax(gains)
+            selected_indices.append(remaining[max_gain_idx].item())
+            remaining = torch.cat([remaining[:max_gain_idx], remaining[max_gain_idx+1:]])
         
         return selected_indices

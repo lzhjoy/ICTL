@@ -18,7 +18,9 @@ class FewShot(BaseMethod):
     def run(self, *args, **kwargs):
         super().run(*args, **kwargs)
         self.device = self.accelerator.device
+
         
+        # print("running evaluation")
         test_fewshot_result = self.test_evaluator.evaluate(self.tokenizer, self.model, use_demonstration=True,)
         self.result_dict['test_result']['few_shot'].append(test_fewshot_result)
         print(f'Test few-shot result: {test_fewshot_result}\n')

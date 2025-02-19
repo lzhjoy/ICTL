@@ -12,8 +12,8 @@ config = {}
 config["method"] = "few_shot"
 
 # config["shot_method"] = "random"
-# config['shot_method'] = 'dpp'
-config['shot_method'] = 'topk'
+config['shot_method'] = 'dpp'
+# config['shot_method'] = 'topk'
 
 config["domain"] = "cross_task_data"
 
