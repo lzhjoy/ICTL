@@ -1,23 +1,15 @@
 # Few-shot 
 
-## 1. evaluate中参数的更改
-
-添加了四个参数：
-- use_random: 是否使用随机选择
-- use_topk: 是否使用topk选择
-- use_dpp: 是否使用dpp选择
-- k: 选择示例的数量
-
-## 2. 重点使用的参数
+## 1. 重点使用的参数
 
 - self.demon_info: 示例信息，包括示例的文本、标签和embedding，一个列表，列表中的每一个元素是一个字典，字典中包含示例的文本、标签和embedding
 - self.demon_data: 示例数据，用于计算embedding，一个列表，列表中的每一个元素是一个字典，字典中包含示例的文本、标签和id
 - self.test_data: 测试数据，用于计算embedding，一个列表，列表中的每一个元素是一个字典，字典中包含query的文本、标签和id
 - self.result_dict: 用于维护结果
 
-## 3. 各种抽样方法
+## 2. 各种抽样方法
 
-### 3.1 随机抽样
+### 2.1 随机抽样
 ```python
 if use_random:
     # 随机选择k个示例
@@ -31,7 +23,7 @@ if use_random:
     demonstration = "".join(demonstrations)
 ```
 
-### 3.2 topk抽样
+### 2.2 topk抽样
 ```python
 elif use_topk:
     # 计算问题与所有示例的余弦相似度
@@ -51,7 +43,7 @@ elif use_topk:
     # 将所有示例连接成一个字符串
     demonstration = "".join(demonstrations)
 ```
-### 3.3 dpp抽样
+### 2.3 dpp抽样
 
 **行列式点过程（Determinantal Point Process, DPP）** 是一种概率模型，用于从候选集合中选择具有高质量（相关性）和多样性（差异性）的子集。其核心思想是通过核矩阵（Kernel Matrix）的数学性质，量化样本之间的相似性，并为多样性高的子集赋予更高的概率。以下是DPP的详细解析：
 
@@ -80,7 +72,7 @@ $$
 
 ---
 
-#### 3. **数学性质与多样性**
+#### 2. **数学性质与多样性**
 - **行列式的意义**：  
   $\det(L_S)$ 的值与子集 $ S $ 中样本的“体积”（即多样性）相关。若样本间高度相似，核矩阵的行列式值较小，概率降低；若样本差异显著，行列式值较大，概率升高。  
 - **排斥性（Repulsiveness）**：  
@@ -150,6 +142,6 @@ $$
 | 多样性保证     | 近似最优                         | 精确最优                         |
 
 
-## 4. 源任务应该如何选择
+## 3. 源任务应该如何选择
 
 该部分需要在定义完evaluator后需要考虑。

@@ -28,7 +28,10 @@ def transformmodel_name2model_path(model_name):
     return model_path
 
 def init_exp_path(config, dataset_name):
-    save_dir = os.path.join(config['exp_name'], config['model_name'], dataset_name)
+    if "few_shot" in config['exp_name']:
+        save_dir = os.path.join(config['exp_name'], str(config['shot_num'])+'_shot', config['shot_method'], config['model_name'],  dataset_name)
+    else:
+        save_dir = os.path.join(config['exp_name'], config['model_name'], dataset_name)
     if os.path.exists(save_dir) and 'debug' not in config['exp_name']:
         raise ValueError(f"Experiment {config['exp_name']} already exists! please delete it or change the name!")
     os.makedirs(save_dir, exist_ok=True)

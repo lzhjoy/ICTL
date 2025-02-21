@@ -65,9 +65,9 @@ class Evaluator(nn.Module):
                 ques_str, _, label = self.src_ds_class.apply_template(data)
                 if not use_demonstration:
                     if self.config['use_instruction']:
-                        context = f"Definition: {src_instruction}\n{ques_str}"
+                        context = f"Definition: {src_instruction}\nQuestion: {ques_str}\nAnswer: "
                     else:
-                        context = ques_str
+                        context = "Question: " + ques_str + "\nAnswer: "
                 else:
                     k = self.config['shot_num']
                     ques_embed = self.sentence_model.encode([ques_str], convert_to_tensor=True)
@@ -141,9 +141,9 @@ class Evaluator(nn.Module):
                         demonstration = "".join(demonstrations)
                     
                     if self.config['use_instruction']:
-                        context = f"Definition: {tar_instruction}\n{demonstration}\nDefinition: {src_instruction}\n{ques_str}"
+                        context = f"Definition: {tar_instruction}\n{demonstration}\nDefinition: {src_instruction}\nQuestion: {ques_str}\nAnswer: "
                     else:
-                        context = demonstration + "\n" + ques_str
+                        context = demonstration + "\n" + "Question: " + ques_str + "\nAnswer: "
                     
                 all_inputs.append(context)
                 all_labels.append(label2id[label])
