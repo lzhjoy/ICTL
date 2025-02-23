@@ -11,9 +11,9 @@ config = {}
 # general
 config["method"] = "few_shot"
 
-# config["shot_method"] = "random"
+config["shot_method"] = "random"
 # config['shot_method'] = 'dpp'
-config['shot_method'] = 'topk'
+# config['shot_method'] = 'topk'
 
 config["domain"] = "cross_task_data"
 
@@ -28,7 +28,7 @@ config["bs"] = 1
 config["load_in_8bit"] = False
 config["use_cache"] = False
 
-config["shot_num"] = 3
+config["shot_num"] = 2
 config["test_num"] = 500
 config['use_instruction'] = False
 # config["use_instruction"] = True
