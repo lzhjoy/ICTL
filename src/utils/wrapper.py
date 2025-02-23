@@ -38,7 +38,8 @@ class ModelWrapper(nn.Module):
 
     def reset_latent_dict(self):
         self.latent_dict = {}
-            
+    
+    # 提取所有层的所有module的隐藏状态
     @contextmanager
     def extract_latent(self):
         handles = []
@@ -67,6 +68,7 @@ class ModelWrapper(nn.Module):
             self.latent_dict[layer_idx][target_module] = outputs.detach().cpu()
         return hook_func
     
+    # 向指定层的指定位置指定module使用指定方法和指定强度注入向量
     @contextmanager
     def inject_latent(self, context_vector_dict, inject_layers, config):
         handles = []
@@ -81,6 +83,7 @@ class ModelWrapper(nn.Module):
             strength = config['strength']
         try:
             # attach hook
+            # TODO: 可以好好阅读一下
             if isinstance(context_vector_dict, tuple):
                 for layer_idx, layer in enumerate(inject_layers):
                     module = config[0]['module']
@@ -118,6 +121,7 @@ class ModelWrapper(nn.Module):
     def inject_hook_func(self, context_vector_container, strength, inject_method, inject_pos):
 
         def hook_func(module, inputs, outputs):
+            # 关注隐藏状态同时忽略其他信息
             if type(outputs) is tuple:
                 output = outputs[0]     
             else:
@@ -128,8 +132,11 @@ class ModelWrapper(nn.Module):
             # expand inject_value to match output size (b, seq_len, d)
             context_vector = context_vector.expand(output.size(0), output.size(1), context_vector.size(-1))
             
+            # 使用'add'方法注入向量时，默认注入所有token处
             if inject_method == 'add':
                 output = output + F.relu(strength) * context_vector
+
+            # TODO: 可以好好阅读一下
             elif inject_method == 'linear':
                 if inject_pos == 'all':
                     output = strength[1] * output + strength[0] * context_vector
@@ -164,7 +171,7 @@ class ModelWrapper(nn.Module):
             return outputs
         return hook_func
     
-
+    # 替换指定层的指定位置指定module的隐藏状态
     @contextmanager
     def replace_latent(self, context_vector_dict, target_layers, config):
         handles = []
@@ -208,7 +215,7 @@ class ModelWrapper(nn.Module):
             return outputs
         return hook_func
     
-
+    # 提取所有层指定module的指定token的隐藏状态
     def get_context_vector(self, all_latent_dicts, config):
         if len(all_latent_dicts) == 1:
             latent_dict = all_latent_dicts[0]

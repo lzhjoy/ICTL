@@ -1,5 +1,96 @@
 # wrapper
 
+## 功能介绍
+ModelWrapper 类中每个函数的作用：
+
+1. `__init__`
+```python
+def __init__(self, model, tokenizer, model_config, device):
+```
+初始化函数，接收模型、分词器、模型配置和设备参数。将模型设为评估模式，并获取模型层数。
+
+2. `reset_latent_dict`
+```python
+def reset_latent_dict(self):
+```
+重置存储中间层输出的字典。
+
+3. `extract_latent`
+```python
+@contextmanager
+def extract_latent(self):
+```
+上下文管理器，用于提取模型各层的中间输出。为每一层的注意力机制(attn)、前馈网络(mlp)和隐藏状态(hidden)注册前向钩子(forward hook)，收集这些层的输出。
+
+4. `extract_hook_func`
+```python
+def extract_hook_func(self, layer_idx, target_module):
+```
+创建用于提取中间层输出的钩子函数。将指定层和模块的输出存储到 latent_dict 中。
+
+5. `inject_latent`
+```python
+@contextmanager
+def inject_latent(self, context_vector_dict, inject_layers, config):
+```
+上下文管理器，用于向模型注入上下文向量。支持单个或多个(风格和知识)上下文向量的注入，可以配置注入方法、位置和强度。
+
+6. `inject_hook_func`
+```python
+def inject_hook_func(self, context_vector_container, strength, inject_method, inject_pos):
+```
+创建用于注入上下文向量的钩子函数。支持三种注入方法：
+- add: 加法注入
+- linear: 线性组合注入
+- balance: 平衡注入
+
+7. `replace_latent`
+```python
+@contextmanager
+def replace_latent(self, context_vector_dict, target_layers, config):
+```
+上下文管理器，用于替换指定层的隐藏状态。
+
+8. `replace_hook_func`
+```python
+def replace_hook_func(self, context_vector_container):
+```
+创建用于替换隐藏状态的钩子函数，主要用于替换序列最后一个token位置的隐藏状态。
+
+9. `get_context_vector`
+```python
+def get_context_vector(self, all_latent_dicts, config):
+```
+从所有潜在字典中提取上下文向量。支持单个或多个潜在字典的处理，可以选择不同的token位置(first/last/random)和融合方法(mean/pca)。
+
+10. `init_strength`
+```python
+def init_strength(self, config):
+```
+初始化注入强度参数。可以针对不同层(early/mid/late/all)和不同注入方法设置不同的初始强度。
+
+11. `init_noise_context_vector`
+```python
+def init_noise_context_vector(self, context_vector_dict):
+```
+初始化噪声上下文向量，为每个位置创建随机噪声向量。
+
+12. `_get_nested_attr` 和 `_get_arribute_path`
+```python
+def _get_nested_attr(self, attr_path):
+def _get_arribute_path(self, layer_idx, target_module):
+```
+辅助函数，用于访问模型的嵌套属性和获取特定层和模块的属性路径。
+
+这个包装器类主要用于：
+1. 提取模型中间层的输出
+2. 向模型注入或替换上下文向量
+3. 支持不同的注入方法和位置
+4. 处理单个或多个上下文向量的融合
+
+它被设计为一个灵活的工具，可以用于研究和操作模型的内部表示。
+
+
 ## 阅读顺序
 
 1. 首先了解整体架构：

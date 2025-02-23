@@ -49,6 +49,15 @@ class BaseMethod:
         elif self.config['domain'] == 'cross_lingual_data':
             # TODO: 需要完善
             pass
+        
+    # 用于提取steering vector
+    def load_src_dataset(self, dataset_name):
+        if self.config['domain'] == 'cross_task_data':
+            test_path = f"data/{self.config['domain']}/source"
+            self.src_data = utils.read_jsonl(f"{test_path}/{dataset_name}.jsonl")
+        elif self.config['domain'] == 'cross_lingual_data':
+            # TODO: 需要完善
+            pass
     
     def get_evaluator(self):
         self.test_evaluator = ev.Evaluator(config=self.config, sentence_model=self.sentence_model, src_ds_class=self.src_ds_class, tar_ds_class=self.tar_ds_class, demon_info=self.demon_info, dataset=self.test_data, batch_size=self.config['bs'], accelerator=self.accelerator)
