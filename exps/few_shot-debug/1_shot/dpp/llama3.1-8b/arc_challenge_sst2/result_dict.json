@@ -1,0 +1,23 @@
+{
+    "demon": {},
+    "dev_result": {
+        "zero_shot": [],
+        "few_shot": [],
+        "ours": []
+    },
+    "test_result": {
+        "zero_shot": [],
+        "few_shot": [
+            {
+                "acc": 0.764,
+                "macro_f1": 0.7628886329969174
+            }
+        ],
+        "ours": []
+    },
+    "time": {
+        "train": [],
+        "evaluate": []
+    },
+    "best_replace_layer": {}
+}

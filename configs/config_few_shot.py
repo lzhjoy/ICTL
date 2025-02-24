@@ -28,7 +28,7 @@ config["bs"] = 1
 config["load_in_8bit"] = False
 config["use_cache"] = False
 
-config["shot_num"] = 2
+config["shot_num"] = 1
 config["test_num"] = 500
 config['use_instruction'] = False
 # config["use_instruction"] = True

@@ -27,6 +27,9 @@ class SteeringVector(BaseMethod):
         with open(self.save_dir + '/result_dict.json', 'w') as f:
             json.dump(self.result_dict, f, indent=4)
     
+    def construct_demon_index(self):
+        pass
+
     def construct_input_with_demonstration(self, question, demonstration, use_instruction=False):
         pass
 
