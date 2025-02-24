@@ -7,7 +7,7 @@
 
 #### 2.1.1 demon_index的选取
 
-对于tar_data中的m个样本，我们使用相应的shot_method，从src_data中选取shot_num + 1个样本，这shot_num + 1个样本的索引即为我们需要的demon_index，保存在data/processed/demon_index/{shot_num}/{shot_method}/{model_name}/{tar_data_name}_{src_data_name}路径下，和结果路径结构相同。
+对于tar_data中的m个样本，我们使用相应的shot_method，从src_data中选取shot_num + 1个样本，这shot_num + 1个样本的索引即为我们需要的demon_index，保存在data/processed/demon_index/{shot_num}_shot/{shot_method}/{model_name}/{tar_data_name}_{src_data_name}路径下，和结果路径结构相同。
 
 
 #### 2.1.2 引导向量的提取
