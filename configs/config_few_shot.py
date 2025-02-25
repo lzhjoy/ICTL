@@ -25,5 +25,5 @@ config["load_in_8bit"] = False
 config["use_cache"] = False
 
 config["test_num"] = 500
-config['use_instruction'] = False
-# config["use_instruction"] = True
+# config['use_instruction'] = False
+config["use_instruction"] = True

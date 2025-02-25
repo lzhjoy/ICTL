@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 from pathlib import Path
+import os
 import itertools
 
 # 定义参数组合
@@ -18,8 +19,8 @@ for shot, method, model, tar_data, src_data in itertools.product(
     shot_num, shot_method, model_name, tar_data_name, src_data_name
 ):
     # 构建文件路径
-    file_path = f"exps/few_shot-debug/{shot}_shot/{method}/{model}/{tar_data}_{src_data}/result_dict.json"
-    
+    # file_path = f"exps/few_shot-debug/{shot}_shot/{method}/{model}/{tar_data}_{src_data}/result_dict.json"
+    file_path = f"exps/few_shot_ins-debug/{shot}_shot/{method}/{model}/{tar_data}_{src_data}/result_dict.json"
     try:
         # 读取JSON文件
         with open(file_path, 'r') as f:
@@ -83,7 +84,9 @@ for tar_data in tar_data_name:
                     )
             
             # 保存为CSV文件
-            csv_path = f"output/analysis/few_shot/analysis_results_{tar_data}_{src_data}.csv"
+
+            # csv_path = f"output/analysis/few_shot/analysis_results_{tar_data}_{src_data}.csv"
+            csv_path = f"output/analysis/few_shot_ins/analysis_results_{tar_data}_{src_data}.csv"
             pivot_df.to_csv(csv_path)
 
 print("Analysis complete. Results saved to CSV files.")
