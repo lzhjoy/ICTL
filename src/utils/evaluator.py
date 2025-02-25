@@ -144,7 +144,7 @@ class Evaluator(nn.Module):
                         context = f"Definition: {tar_instruction}\n{demonstration}\nDefinition: {src_instruction}\n{ques_str}"
                     else:
                         context = demonstration + "\n" + ques_str
-                # print(f"context: {context}")
+                print(f"context:\n {context} \n")
 
                 all_inputs.append(context)
                 all_labels.append(label2id[label])
