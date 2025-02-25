@@ -63,19 +63,27 @@ for tar_data in tar_data_name:
                 columns='Method',
                 aggfunc='first'
             )
+            
+            # 为每种方法找到最大值并加粗
+            for method in shot_method:
+                # 处理Accuracy
+                acc_col = ('Accuracy', method)
+                if acc_col in pivot_df.columns:
+                    max_acc = pivot_df[acc_col].max()
+                    pivot_df[acc_col] = pivot_df[acc_col].apply(
+                        lambda x: f"**{x:.3f}**" if x == max_acc else f"{x:.3f}"
+                    )
+                
+                # 处理Macro F1
+                f1_col = ('Macro F1', method)
+                if f1_col in pivot_df.columns:
+                    max_f1 = pivot_df[f1_col].max()
+                    pivot_df[f1_col] = pivot_df[f1_col].apply(
+                        lambda x: f"**{x:.3f}**" if x == max_f1 else f"{x:.3f}"
+                    )
+            
             # 保存为CSV文件
             csv_path = f"output/analysis/few_shot/analysis_results_{tar_data}_{src_data}.csv"
             pivot_df.to_csv(csv_path)
 
 print("Analysis complete. Results saved to CSV files.")
-
-
-
-
-
-
-
-
-
-
-

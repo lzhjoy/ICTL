@@ -11,24 +11,19 @@ config = {}
 # general
 config["method"] = "few_shot"
 
-config["shot_method"] = "random"
-# config['shot_method'] = 'dpp'
-# config['shot_method'] = 'topk'
-
 config["domain"] = "cross_task_data"
 
 config["gpus"] = ["0"]
 
 config["model_name"] = "llama3.1-8b"
 
-# config["exp_name"] = "exps/few_shot_ins-debug/" + config["shot_method"]
-config['exp_name'] = 'exps/few_shot-debug/'
+# config["exp_name"] = "exps/few_shot-debug/"
+config['exp_name'] = 'exps/few_shot_ins-debug/'
 
 config["bs"] = 1
 config["load_in_8bit"] = False
 config["use_cache"] = False
 
-config["shot_num"] = 1
 config["test_num"] = 500
-config['use_instruction'] = False
-# config["use_instruction"] = True
+# config['use_instruction'] = False
+config["use_instruction"] = True

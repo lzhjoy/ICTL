@@ -24,9 +24,6 @@ config["method"] = "ours"
 
 config["domain"] = "cross_task_data"
 
-# config["shot_method"] = "random"
-# config['shot_method'] = 'dpp'
-config['shot_method'] = 'topk'
 
 config["gpus"] = ["0"]
 
@@ -39,7 +36,6 @@ config["bs"] = 1
 config["load_in_8bit"] = False
 config["use_cache"] = False
 
-config["shot_num"] = 3
 config["test_num"] = 500
-config['use_instruction'] = False
-# config["use_instruction"] = True
+# config['use_instruction'] = False
+config["use_instruction"] = True

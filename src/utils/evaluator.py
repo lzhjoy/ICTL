@@ -65,9 +65,9 @@ class Evaluator(nn.Module):
                 ques_str, _, label = self.src_ds_class.apply_template(data)
                 if not use_demonstration:
                     if self.config['use_instruction']:
-                        context = f"Definition: {src_instruction}\nQuestion: {ques_str}\nAnswer: "
+                        context = f"Definition: {src_instruction}\n{ques_str}"
                     else:
-                        context = "Question: " + ques_str + "\nAnswer: "
+                        context = ques_str
                 else:
                     k = self.config['shot_num']
                     ques_embed = self.sentence_model.encode([ques_str], convert_to_tensor=True)
@@ -78,7 +78,7 @@ class Evaluator(nn.Module):
                         # 构建示例字符串
                         demonstrations = []
                         for demon in selected_demons:
-                            demon_str = f"Question: {demon['demon']}\nAnswer: {demon['label']}\n"
+                            demon_str = f"{demon['demon']}{demon['label']}\n"
                             demonstrations.append(demon_str)
                         # 将所有示例连接成一个字符串
                         demonstration = "".join(demonstrations) 
@@ -104,7 +104,7 @@ class Evaluator(nn.Module):
                         demonstrations = []
                         for idx in top_k_indices:
                             demon = self.demon_info[idx]
-                            demon_str = f"Question: {demon['demon']}\nAnswer: {demon['label']}\n"
+                            demon_str = f"{demon['demon']}{demon['label']}\n"
                             demonstrations.append(demon_str)
                         # 将所有示例连接成一个字符串
                         demonstration = "".join(demonstrations)
@@ -136,15 +136,16 @@ class Evaluator(nn.Module):
                         demonstrations = []
                         for idx in selected_indices:
                             demon = self.demon_info[idx]
-                            demon_str = f"Question: {demon['demon']}\nAnswer: {demon['label']}\n"
+                            demon_str = f"{demon['demon']}{demon['label']}\n"
                             demonstrations.append(demon_str)
                         demonstration = "".join(demonstrations)
                     
                     if self.config['use_instruction']:
-                        context = f"Definition: {tar_instruction}\n{demonstration}\nDefinition: {src_instruction}\nQuestion: {ques_str}\nAnswer: "
+                        context = f"Definition: {tar_instruction}\n{demonstration}\nDefinition: {src_instruction}\n{ques_str}"
                     else:
-                        context = demonstration + "\n" + "Question: " + ques_str + "\nAnswer: "
-                    
+                        context = demonstration + "\n" + ques_str
+                # print(f"context: {context}")
+
                 all_inputs.append(context)
                 all_labels.append(label2id[label])
             

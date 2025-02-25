@@ -12,7 +12,7 @@
 
 #### 2.1.2 引导向量的提取
 
-利用demon_index，我们可以从src_data中提取出对应的shot_num + 1个样本，其中选择shot_num个样本作为demonstration，一个样本作为question_str，分别构造m个使用demonstration的prompt和不使用demonstration的prompt，使用模型计算出steering vector。
+利用demon_index，我们可以从src_data中提取出对应的shot_num + 1个样本，其中选择shot_num个样本作为demonstration，一个样本作为question_str，分别构造m个使用demonstration的prompt和不使用demonstration的prompt，使用模型计算出steering vector, 保存在data/processed/steering_vector/{shot_num}_shot/{shot_method}/{model_name}/{tar_data_name}_{src_data_name}路径下，和结果路径结构相同。
 
 
 
