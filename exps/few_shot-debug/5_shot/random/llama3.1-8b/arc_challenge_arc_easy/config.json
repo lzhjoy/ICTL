@@ -1,6 +1,5 @@
 {
     "method": "few_shot",
-    "shot_method": "random",
     "domain": "cross_task_data",
     "gpus": [
         "0"
@@ -10,10 +9,11 @@
     "bs": 1,
     "load_in_8bit": false,
     "use_cache": false,
-    "shot_num": 5,
     "test_num": 500,
     "use_instruction": false,
     "src_datasets": "arc_challenge",
     "tar_datasets": "arc_easy",
+    "shot_num": 5,
+    "shot_method": "random",
     "model_path": "/mnt/tangxinyu/huggingface/models/meta-llama/Meta-Llama-3.1-8B/"
 }

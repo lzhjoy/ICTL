@@ -17,13 +17,13 @@ config["gpus"] = ["0"]
 
 config["model_name"] = "llama3.1-8b"
 
-# config["exp_name"] = "exps/few_shot-debug/"
-config['exp_name'] = 'exps/few_shot_ins-debug/'
+config["exp_name"] = "exps/few_shot-debug/"
+# config['exp_name'] = 'exps/few_shot_ins-debug/'
 
 config["bs"] = 1
 config["load_in_8bit"] = False
 config["use_cache"] = False
 
 config["test_num"] = 500
-# config['use_instruction'] = False
-config["use_instruction"] = True
+config['use_instruction'] = False
+# config["use_instruction"] = True
