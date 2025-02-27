@@ -197,7 +197,7 @@ class SteeringVector(BaseMethod):
 
         """提取steering vector并保存为json文件"""
         # 创建保存路径
-        save_dir = f"data/processed/steering_vector/{self.config['shot_num']}_shot/{self.config['shot_method']}/{self.config['model_name']}/{self.tar_dataset_name}_{self.src_dataset_name}"
+        save_dir = f"data/processed/steering_vector/{self.config['shot_num']}_shot/{self.config['shot_method']}/{self.config['model_name']}/{self.src_dataset_name}_{self.tar_dataset_name}"
         os.makedirs(save_dir, exist_ok=True)
         
         with_demo_path = os.path.join(save_dir, "hidden_states_with_demo.json")
