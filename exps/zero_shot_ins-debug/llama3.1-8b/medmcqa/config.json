@@ -1,17 +1,3 @@
-{
-    "exp_name": "exps/zero_shot_ins-debug",
-    "method": "zero_shot",
-    "domain": "cross_task_data",
-    "gpus": [
-        "0"
-    ],
-    "model_name": "llama3.1-8b",
-    "bs": 1,
-    "load_in_8bit": false,
-    "use_cache": true,
-    "shot_num": 0,
-    "test_num": 500,
-    "use_instruction": true,
-    "datasets": "medmcqa",
-    "model_path": "/mnt/tangxinyu/huggingface/models/meta-llama/Meta-Llama-3.1-8B/"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:3ca0d23b49e16c707018ea43927ff9fd61b50c92ba584ff31878411260108a73
+size 416

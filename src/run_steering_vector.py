@@ -30,6 +30,7 @@ if __name__ == "__main__":
         
     # load config
     config = utils.load_config(args.config_path)
+    # print(config)
     src_datasets = args.src_datasets
     tar_datasets = args.tar_datasets
     shot_num = args.shot_num

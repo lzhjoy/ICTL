@@ -16,7 +16,7 @@ config = {
     'strength': 1, # 固定注入强度 
     'tok_pos': 'last',
     'post_fuse_method': 'mean',
-    'init_value': 0.1 # 可学习注入强度初始值
+    'init_value': 0.1, # 可学习注入强度初始值
 }
 
 # general

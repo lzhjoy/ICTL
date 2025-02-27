@@ -1,19 +1,3 @@
-{
-    "method": "few_shot",
-    "domain": "cross_task_data",
-    "gpus": [
-        "0"
-    ],
-    "model_name": "llama3.1-8b",
-    "exp_name": "exps/few_shot-debug/",
-    "bs": 1,
-    "load_in_8bit": false,
-    "use_cache": false,
-    "test_num": 500,
-    "use_instruction": false,
-    "src_datasets": "financial_phrasebank",
-    "tar_datasets": "commensense_qa",
-    "shot_num": 1,
-    "shot_method": "topk",
-    "model_path": "/mnt/tangxinyu/huggingface/models/meta-llama/Meta-Llama-3.1-8B/"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:9a811d7f5fb882ef16c7a8f62a3d89c72902163f380c9ca555f0f727f1275065
+size 495

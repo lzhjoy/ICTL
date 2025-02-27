@@ -1,19 +1,3 @@
-{
-    "method": "few_shot",
-    "domain": "cross_task_data",
-    "gpus": [
-        "0"
-    ],
-    "model_name": "llama3.1-8b",
-    "exp_name": "exps/few_shot_ins-debug/",
-    "bs": 1,
-    "load_in_8bit": false,
-    "use_cache": false,
-    "test_num": 500,
-    "use_instruction": true,
-    "src_datasets": "arc_challenge",
-    "tar_datasets": "arc_easy",
-    "shot_num": 3,
-    "shot_method": "dpp",
-    "model_path": "/mnt/tangxinyu/huggingface/models/meta-llama/Meta-Llama-3.1-8B/"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:53598fb817663a15dd3896d88ceee0c56d564e26302f5aa2aff3899bc71743b1
+size 484

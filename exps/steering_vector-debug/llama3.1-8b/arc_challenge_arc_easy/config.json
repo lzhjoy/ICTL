@@ -1,27 +1,3 @@
-{
-    "module": "hidden",
-    "layer": "mid",
-    "inject_method": "add",
-    "inject_pos": "all",
-    "strength": 1,
-    "tok_pos": "last",
-    "post_fuse_method": "mean",
-    "init_value": 0.1,
-    "method": "ours",
-    "domain": "cross_task_data",
-    "gpus": [
-        "0"
-    ],
-    "model_name": "llama3.1-8b",
-    "exp_name": "exps/steering_vector-debug/",
-    "bs": 1,
-    "load_in_8bit": false,
-    "use_cache": false,
-    "test_num": 500,
-    "use_instruction": true,
-    "src_datasets": "arc_challenge",
-    "tar_datasets": "arc_easy",
-    "shot_num": 2,
-    "shot_method": "dpp",
-    "model_path": "/mnt/tangxinyu/huggingface/models/meta-llama/Meta-Llama-3.1-8B/"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:e73e9c74cb6ea8313decff26eef35e419f895638ffb9cb478c0c14d5f6c719b7
+size 677

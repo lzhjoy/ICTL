@@ -1,23 +1,3 @@
-{
-    "demon": {},
-    "dev_result": {
-        "zero_shot": [],
-        "few_shot": [],
-        "ours": []
-    },
-    "test_result": {
-        "zero_shot": [],
-        "few_shot": [
-            {
-                "acc": 0.716,
-                "macro_f1": 0.7209159555000471
-            }
-        ],
-        "ours": []
-    },
-    "time": {
-        "train": [],
-        "evaluate": []
-    },
-    "best_replace_layer": {}
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:4885d23a0fdd329d1a0545cef6e6a90032d60acdd5cea3d4986c76baf75f92d9
+size 419

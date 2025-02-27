@@ -31,8 +31,10 @@ class SteeringVector(BaseMethod):
 
         prompts_with_demonstration = self.construct_input_with_demonstration()
         prompts_without_demonstration = self.construct_input_without_demonstration()
-        print(prompts_with_demonstration[0]+'\n\n\n')
-        print(prompts_without_demonstration[0]+'\n\n\n')
+        # print(prompts_with_demonstration[0]+'\n\n\n')
+        # print(prompts_without_demonstration[0]+'\n\n\n')
+
+        self.extract_steering_vector(prompts_with_demonstration, prompts_without_demonstration)
 
         # print("running evaluation")
         test_steering_result = self.test_evaluator.evaluate(self.tokenizer, self.model, use_demonstration=False,)
@@ -192,8 +194,114 @@ class SteeringVector(BaseMethod):
         return prompts
 
     def extract_steering_vector(self, prompts_with_demonstration: list, prompts_without_demonstration: list):
+
+        """提取steering vector并保存为json文件"""
+        # 创建保存路径
+        save_dir = f"data/processed/steering_vector/{self.config['shot_num']}_shot/{self.config['shot_method']}/{self.config['model_name']}/{self.tar_dataset_name}_{self.src_dataset_name}"
+        os.makedirs(save_dir, exist_ok=True)
         
-        pass
+        with_demo_path = os.path.join(save_dir, "hidden_states_with_demo.json")
+        without_demo_path = os.path.join(save_dir, "hidden_states_without_demo.json")
+        steering_vector_path = os.path.join(save_dir, "steering_vectors.json")
+        
+        # 检查文件是否已存在
+        if os.path.exists(steering_vector_path):
+            print(f"Steering vector file already exists at {steering_vector_path}, skipping generation...")
+            return
+        
+        # 存储隐藏状态的字典
+        hidden_states_with_demo = {}
+        hidden_states_without_demo = {}
+        steering_vectors = {}
+        
+        # 使用模型包装器提取隐藏状态
+        model_wrapper = wrapper.LlamaWrapper(self.model, self.tokenizer, self.model_config, self.device)
+        
+        print("Extracting hidden states with demonstrations...")
+        for idx, prompt in enumerate(tqdm(prompts_with_demonstration)):
+            # 对输入进行编码
+            inputs = self.tokenizer(prompt, return_tensors="pt", padding=True)
+            input_ids = inputs['input_ids'].to(self.device)
+            attention_mask = inputs['attention_mask'].to(self.device)
+            
+            # 提取隐藏状态
+            with model_wrapper.extract_latent():
+                outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+                
+                # 获取隐藏状态
+                hidden_states = model_wrapper.get_context_vector(
+                    [model_wrapper.latent_dict],
+                    config={
+                        'module': self.config['module'],
+                        'tok_pos': self.config['tok_pos'],
+                        'post_fuse_method': self.config['post_fuse_method']
+                    }
+                )
+                hidden_states_with_demo[str(idx)] = {
+                    str(layer): {
+                        str(module): tensor.tolist() 
+                        for module, tensor in layer_dict.items()
+                    }
+                    for layer, layer_dict in hidden_states.items()
+                }
+        
+        print("Extracting hidden states without demonstrations...")
+        for idx, prompt in enumerate(tqdm(prompts_without_demonstration)):
+            # 对输入进行编码
+            inputs = self.tokenizer(prompt, return_tensors="pt", padding=True)
+            input_ids = inputs['input_ids'].to(self.device)
+            attention_mask = inputs['attention_mask'].to(self.device)
+            
+            # 提取隐藏状态
+            with model_wrapper.extract_latent():
+                outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+                
+                # 获取隐藏状态
+                hidden_states = model_wrapper.get_context_vector(
+                    [model_wrapper.latent_dict],
+                    config={
+                        'module': self.config['module'],
+                        'tok_pos': self.config['tok_pos'],
+                        'post_fuse_method': self.config['post_fuse_method']
+                    }
+                )
+                hidden_states_without_demo[str(idx)] = {
+                    str(layer): {
+                        str(module): tensor.tolist() 
+                        for module, tensor in layer_dict.items()
+                    }
+                    for layer, layer_dict in hidden_states.items()
+                }
+        
+        print("Computing steering vectors...")
+        # 计算steering vectors
+        # hidden_states_with_demo: {str(idx): {str(layer): {str(module): [list]}}
+        # hidden_states_without_demo: {str(idx): {str(layer): {str(module): [list]}}
+        for idx in tqdm(hidden_states_with_demo.keys()):
+            steering_vectors[idx] = {
+                str(layer): {
+                    self.config['module']: [  # 移除 str(module)，直接使用 module 字符串
+                        a - b for a, b in zip(
+                            hidden_states_with_demo[idx][str(layer)][self.config['module']],
+                            hidden_states_without_demo[idx][str(layer)][self.config['module']]
+                        )
+                    ]
+                }
+                for layer in range(model_wrapper.num_layers)
+            }
+        
+        # 保存结果
+        print("Saving results...")
+        with open(with_demo_path, 'w') as f:
+            json.dump(hidden_states_with_demo, f, indent=4)
+        
+        with open(without_demo_path, 'w') as f:
+            json.dump(hidden_states_without_demo, f, indent=4)
+        
+        with open(steering_vector_path, 'w') as f:
+            json.dump(steering_vectors, f, indent=4)
+        
+        print(f"Results saved to {save_dir}")
 
     def inject_steering_vector(self):
         pass
